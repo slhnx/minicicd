@@ -5,6 +5,7 @@ import { useState } from "react"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { GitHubConnectCard } from "@/components/dashboard/github/github-connect-card"
 import { GitHubConnectedState } from "@/components/dashboard/github/github-connected-state"
+import { TrpcHello } from "@/components/dashboard/trpc-hello"
 import { UserAvatar, UserSummary } from "@/components/dashboard/user-display"
 import { Button } from "@/components/ui/button"
 import { mockRepositories } from "@/lib/mocks/repositories"
@@ -39,6 +40,8 @@ export function OverviewContent() {
         </div>
       </DashboardHeader>
 
+      <TrpcHello />
+
       <div className="rounded-lg border border-border bg-muted/20 p-1">
         <div className="flex flex-wrap gap-1">
           {previewOptions.map((option) => (
@@ -60,7 +63,7 @@ export function OverviewContent() {
 
       {!isConnected ? (
         <div className="flex justify-center py-8">
-          <GitHubConnectCard onConnect={() => setPreviewState("connected")} />
+          <GitHubConnectCard />
         </div>
       ) : (
         <GitHubConnectedState

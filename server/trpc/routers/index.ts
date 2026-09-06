@@ -1,25 +1,14 @@
-import {
-  createTRPCRouter,
-  privateProcedure,
-  publicProcedure,
-} from "@/server/trpc/init"
+import { createTRPCRouter, publicProcedure } from "@/server/trpc/init"
+import { githubRouter } from "./github.router"
 
 export const appRouter = createTRPCRouter({
-  public: createTRPCRouter({
-    hello: publicProcedure.query(() => {
-      return {
-        message: "Hello from tRPC",
-      }
-    }),
+  hello: publicProcedure.query(() => {
+    return {
+      message: "Hello from tRPC",
+    }
   }),
-  private: createTRPCRouter({
-    hello: privateProcedure.query(({ ctx }) => {
-      return {
-        message: "Authenticated",
-        user: ctx.session.user,
-      }
-    }),
-  }),
+  github: githubRouter,
+  
 })
 
 export type AppRouter = typeof appRouter

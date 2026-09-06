@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useTRPC } from "@/lib/trpc/client"
+import { useQuery } from "@tanstack/react-query"
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -22,11 +24,24 @@ function GitHubIcon({ className }: { className?: string }) {
   )
 }
 
-export function GitHubConnectCard({
-  onConnect,
-}: {
-  onConnect: () => void
-}) {
+export function GitHubConnectCard() {
+
+  const trpc = useTRPC()
+
+  const { refetch, isFetching } = useQuery(
+    trpc.github.getInstallUrl.queryOptions(undefined, {
+      enabled: false,
+    })
+  )
+
+  async function handleConnect() {
+    const result = await refetch()
+
+    if (result.data?.installUrl) {
+      window.location.href = result.data.installUrl
+    }
+  }
+
   return (
     <Card className="mx-auto max-w-lg shadow-sm">
       <CardHeader className="items-center text-center">
@@ -40,7 +55,12 @@ export function GitHubConnectCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-3 pb-8">
-        <Button size="lg" onClick={onConnect} className="min-w-44">
+        <Button
+          size="lg"
+          onClick={handleConnect}
+          className="min-w-44"
+          isLoading={isFetching}
+        >
           <GitHubIcon className="size-4" />
           Connect GitHub
         </Button>

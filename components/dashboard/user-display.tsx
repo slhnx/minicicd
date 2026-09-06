@@ -2,9 +2,30 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useMounted } from "@/hooks/use-mounted"
 import { useSession } from "@/lib/auth/auth-client"
 import { getUserDisplayName, getUserInitials } from "@/lib/auth/user-display"
 import { cn } from "@/lib/utils"
+
+function UserAvatarSkeleton({
+  size = "default",
+  className,
+}: {
+  size?: "default" | "sm" | "lg"
+  className?: string
+}) {
+  return (
+    <Skeleton
+      className={cn(
+        "rounded-full",
+        size === "sm" && "size-6",
+        size === "default" && "size-8",
+        size === "lg" && "size-10",
+        className
+      )}
+    />
+  )
+}
 
 export function UserAvatar({
   size = "default",
@@ -13,20 +34,11 @@ export function UserAvatar({
   size?: "default" | "sm" | "lg"
   className?: string
 }) {
+  const mounted = useMounted()
   const { data: session, isPending } = useSession()
 
-  if (isPending) {
-    return (
-      <Skeleton
-        className={cn(
-          "rounded-full",
-          size === "sm" && "size-6",
-          size === "default" && "size-8",
-          size === "lg" && "size-10",
-          className
-        )}
-      />
-    )
+  if (!mounted || isPending) {
+    return <UserAvatarSkeleton size={size} className={className} />
   }
 
   if (!session?.user) {
@@ -55,9 +67,10 @@ export function UserSummary({
   showEmail?: boolean
   className?: string
 }) {
+  const mounted = useMounted()
   const { data: session, isPending } = useSession()
 
-  if (isPending) {
+  if (!mounted || isPending) {
     return (
       <div className={cn("space-y-1", className)}>
         <Skeleton className="h-4 w-24" />

@@ -21,10 +21,28 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useMounted } from "@/hooks/use-mounted"
 import { signOut } from "@/lib/auth/auth-client"
+
+function SidebarUserSkeleton({ collapsed }: { collapsed: boolean }) {
+  if (collapsed) {
+    return <Skeleton className="mx-auto size-8 rounded-lg" />
+  }
+
+  return (
+    <div className="flex items-center gap-3 px-2.5 py-2">
+      <Skeleton className="size-6 shrink-0 rounded-full" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-3 w-32" />
+      </div>
+    </div>
+  )
+}
 
 export function SidebarUser() {
   const router = useRouter()
+  const mounted = useMounted()
   const { collapsed } = useDashboard()
   const { user, isPending } = useCurrentUser()
 
@@ -39,6 +57,14 @@ export function SidebarUser() {
     })
   }
 
+  if (!mounted || isPending) {
+    return <SidebarUserSkeleton collapsed={collapsed} />
+  }
+
+  if (!user) {
+    return null
+  }
+
   const trigger = (
     <Button
       variant="ghost"
@@ -47,19 +73,14 @@ export function SidebarUser() {
           ? "size-8 justify-center px-0"
           : "h-auto w-full justify-start gap-3 px-2.5 py-2"
       }
-      disabled={isPending || !user}
     >
-      {isPending ? (
-        <Skeleton className="size-6 shrink-0 rounded-full" />
-      ) : user ? (
-        <Avatar size="sm">
-          {user.image ? (
-            <AvatarImage src={user.image} alt={user.name} />
-          ) : null}
-          <AvatarFallback>{user.initials}</AvatarFallback>
-        </Avatar>
-      ) : null}
-      {!collapsed && !isPending && user && (
+      <Avatar size="sm">
+        {user.image ? (
+          <AvatarImage src={user.image} alt={user.name} />
+        ) : null}
+        <AvatarFallback>{user.initials}</AvatarFallback>
+      </Avatar>
+      {!collapsed && (
         <span className="flex min-w-0 flex-1 flex-col items-start text-left">
           <span className="truncate text-sm font-medium text-foreground">
             {user.name}
@@ -69,21 +90,11 @@ export function SidebarUser() {
           </span>
         </span>
       )}
-      {!collapsed && isPending && (
-        <span className="flex min-w-0 flex-1 flex-col items-start gap-1 text-left">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-3 w-32" />
-        </span>
-      )}
-      {!collapsed && !isPending && user && (
+      {!collapsed && (
         <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
       )}
     </Button>
   )
-
-  if (!isPending && !user) {
-    return null
-  }
 
   return (
     <DropdownMenu>
@@ -93,35 +104,29 @@ export function SidebarUser() {
             render={
               <DropdownMenuTrigger
                 render={trigger}
-                aria-label={user ? `${user.name} menu` : "User menu"}
+                aria-label={`${user.name} menu`}
               />
             }
           />
-          <TooltipContent side="right">
-            {user?.name ?? "Account"}
-          </TooltipContent>
+          <TooltipContent side="right">{user.name}</TooltipContent>
         </Tooltip>
       ) : (
         <DropdownMenuTrigger
           render={trigger}
-          aria-label={user ? `${user.name} menu` : "User menu"}
+          aria-label={`${user.name} menu`}
         />
       )}
 
       <DropdownMenuContent align="start" side="top" className="w-56">
-        {user && (
-          <>
-            <DropdownMenuLabel>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium">{user.name}</span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {user.email}
-                </span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-          </>
-        )}
+        <DropdownMenuLabel>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-medium">{user.name}</span>
+            <span className="text-xs font-normal text-muted-foreground">
+              {user.email}
+            </span>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
         <DropdownMenuItem disabled>
           <User className="size-4" />
           Profile
