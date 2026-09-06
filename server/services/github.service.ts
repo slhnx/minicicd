@@ -31,8 +31,20 @@ export class GithubService {
     return url
   }
 
-  verifyState(state: string) {
-    return jwt.verify(state, this.githubStateSecret)
+  verifyState(state: string): { userId: string } {
+    const payload = jwt.verify(state, this.githubStateSecret)
+
+    if (typeof payload === "string" || !payload || typeof payload !== "object") {
+      throw new Error("Invalid state payload")
+    }
+
+    const userId = (payload as jwt.JwtPayload & { userId?: string }).userId
+
+    if (!userId) {
+      throw new Error("State payload missing userId")
+    }
+
+    return { userId }
   }
 
   async getInstallationOctokit(installationId: number) {
