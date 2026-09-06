@@ -89,3 +89,69 @@ model GithubInstallation {
   @@index([userId])
   @@map("github_installation")
 }
+
+enum PipelineRunStatus {
+  QUEUED
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+model Project {
+  id            String     @id @default(cuid())
+  githubRepoId  BigInt     @unique
+  name          String
+  fullName      String
+  cloneUrl      String
+  defaultBranch String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  pipelines     Pipeline[]
+
+  @@map("project")
+}
+
+model Pipeline {
+  id            String        @id @default(cuid())
+  projectId     String
+  name          String
+  configuration Json
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  runs          PipelineRun[]
+
+  @@index([projectId])
+  @@map("pipeline")
+}
+
+model PipelineRun {
+  id          String            @id @default(cuid())
+  pipelineId  String
+  commitSha   String
+  branch      String
+  status      PipelineRunStatus @default(QUEUED)
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  duration    Int?
+  createdAt   DateTime          @default(now())
+  pipeline    Pipeline          @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  buildLogs   BuildLog[]
+
+  @@index([pipelineId])
+  @@index([status])
+  @@map("pipeline_run")
+}
+
+model BuildLog {
+  id            String      @id @default(cuid())
+  pipelineRunId String
+  step          String
+  message       String
+  timestamp     DateTime    @default(now())
+  pipelineRun   PipelineRun @relation(fields: [pipelineRunId], references: [id], onDelete: Cascade)
+
+  @@index([pipelineRunId])
+  @@map("build_log")
+}

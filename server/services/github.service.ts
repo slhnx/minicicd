@@ -76,14 +76,48 @@ export class GithubService {
     return data.repositories.map((repo) => ({
       id: String(repo.id),
       name: repo.name,
+      fullName: repo.full_name ?? "",
+      cloneUrl: repo.clone_url ?? "",
       description: repo.description ?? "No description provided.",
       visibility: repo.private ? ("private" as const) : ("public" as const),
       url: repo.full_name
         ? `github.com/${repo.full_name}`
         : (repo.html_url ?? ""),
+      htmlUrl: repo.html_url ?? "",
       defaultBranch: repo.default_branch ?? "main",
       owner: repo.full_name?.split("/")[0] ?? installation.githubAccountLogin,
     }))
+  }
+
+  async getRepository(userId: string, githubRepoId: string) {
+    const installation = await this.getUserInstallation(userId)
+
+    if (!installation) {
+      throw new Error("GitHub installation not found")
+    }
+
+    const installationId = Number(installation.installationId)
+    const octokit = await this.getInstallationOctokit(installationId)
+
+    const { data: repo } = await octokit.request("GET /repositories/{repository_id}", {
+      repository_id: Number(githubRepoId),
+    })
+
+    return {
+      id: String(repo.id),
+      name: repo.name,
+      fullName: repo.full_name ?? "",
+      cloneUrl: repo.clone_url ?? "",
+      description: repo.description ?? "No description provided.",
+      visibility: repo.private ? ("private" as const) : ("public" as const),
+      url: repo.full_name
+        ? `github.com/${repo.full_name}`
+        : (repo.html_url ?? ""),
+      htmlUrl: repo.html_url ?? "",
+      defaultBranch: repo.default_branch ?? "main",
+      owner:
+        repo.full_name?.split("/")[0] ?? installation.githubAccountLogin,
+    }
   }
 
   async saveInstallation(userId: string, installation_id: number) {
