@@ -4,11 +4,9 @@ import { Suspense } from "react"
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { GitHubOverviewSection } from "@/components/dashboard/github/github-overview-section"
-import { TrpcHello } from "@/components/dashboard/trpc-hello"
-import { UserAvatar, UserSummary } from "@/components/dashboard/user-display"
 import { Skeleton } from "@/components/ui/skeleton"
 
-function GitHubOverviewFallback() {
+function RepositoriesFallback() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-6 w-32" />
@@ -18,22 +16,14 @@ function GitHubOverviewFallback() {
   )
 }
 
-export function OverviewContent() {
+export function RepositoriesContent() {
   return (
     <div className="space-y-8">
       <DashboardHeader
-        title="Overview"
-        description="Monitor your repositories and CI pipelines."
-      >
-        <div className="flex items-center gap-3">
-          <UserAvatar size="sm" />
-          <UserSummary className="hidden sm:block" />
-        </div>
-      </DashboardHeader>
-
-      <TrpcHello />
-
-      <Suspense fallback={<GitHubOverviewFallback />}>
+        title="Repositories"
+        description="Manage connected GitHub repositories and pipeline settings."
+      />
+      <Suspense fallback={<RepositoriesFallback />}>
         <GitHubOverviewSection />
       </Suspense>
     </div>

@@ -1,4 +1,4 @@
-import type { MockRepository } from "@/lib/mocks/repositories"
+import type { Repository } from "@/lib/types/repository"
 
 import { RepositoryCard } from "@/components/dashboard/repositories/repository-card"
 import {
@@ -12,7 +12,7 @@ export function RepositoryList({
   emptyTitle,
   emptyDescription,
 }: {
-  repositories: MockRepository[]
+  repositories: Repository[]
   isLoading?: boolean
   emptyTitle?: string
   emptyDescription?: string
