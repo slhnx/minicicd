@@ -1,47 +1,71 @@
 "use client"
 
 import { useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { GitHubConnectCard } from "@/components/dashboard/github/github-connect-card"
 import { GitHubConnectedState } from "@/components/dashboard/github/github-connected-state"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useTRPC } from "@/lib/trpc/client"
+
+function GitHubConnectSkeleton() {
+  return (
+    <div className="mx-auto flex max-w-lg flex-col items-center gap-4 py-8">
+      <Skeleton className="size-14 rounded-xl" />
+      <Skeleton className="h-6 w-40" />
+      <Skeleton className="h-4 w-72 max-w-full" />
+      <Skeleton className="h-10 w-44 rounded-lg" />
+    </div>
+  )
+}
 
 export function GitHubOverviewSection() {
   const trpc = useTRPC()
   const queryClient = useQueryClient()
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const githubStatus = searchParams.get("github")
 
-  const installationQuery = useQuery(trpc.github.getInstallation.queryOptions())
+  const installationQuery = useQuery(
+    trpc.github.getInstallation.queryOptions(undefined),
+  )
+
+  const isConnected = installationQuery.data?.connected === true
 
   const repositoriesQuery = useQuery({
-    ...trpc.github.listRepositories.queryOptions(),
-    enabled: installationQuery.data?.connected === true,
+    ...trpc.github.listRepositories.queryOptions(undefined),
+    enabled: isConnected,
   })
 
   useEffect(() => {
-    if (githubStatus === "connected" || githubStatus === "error") {
-      void queryClient.invalidateQueries({
-        queryKey: trpc.github.getInstallation.queryKey(),
-      })
+    if (githubStatus !== "connected" && githubStatus !== "error") {
+      return
+    }
+
+    void queryClient.invalidateQueries({
+      queryKey: trpc.github.getInstallation.queryKey(),
+    })
+
+    if (githubStatus === "connected") {
       void queryClient.invalidateQueries({
         queryKey: trpc.github.listRepositories.queryKey(),
       })
+      router.replace(pathname, { scroll: false })
     }
-  }, [githubStatus, queryClient, trpc.github])
+  }, [githubStatus, pathname, queryClient, router, trpc.github])
 
-  const isLoading =
-    installationQuery.isPending ||
-    (installationQuery.data?.connected && repositoriesQuery.isPending)
+  if (installationQuery.isPending) {
+    return <GitHubConnectSkeleton />
+  }
 
-  if (installationQuery.isError || repositoriesQuery.isError) {
+  if (installationQuery.isError) {
     return (
       <Alert variant="destructive">
         <AlertDescription>
-          Failed to load GitHub connection status. Please try again.
+          Failed to check GitHub connection status. Please try again.
         </AlertDescription>
       </Alert>
     )
@@ -62,13 +86,7 @@ export function GitHubOverviewSection() {
     )
   }
 
-  if (isLoading) {
-    return (
-      <GitHubConnectedState repositories={[]} isLoading accountLogin={undefined} />
-    )
-  }
-
-  if (!installationQuery.data?.connected) {
+  if (!isConnected) {
     return (
       <div className="flex justify-center py-8">
         <GitHubConnectCard />
@@ -79,7 +97,8 @@ export function GitHubOverviewSection() {
   return (
     <GitHubConnectedState
       repositories={repositoriesQuery.data?.repositories ?? []}
-      isLoading={repositoriesQuery.isFetching}
+      isLoading={repositoriesQuery.isPending}
+      isError={repositoriesQuery.isError}
       accountLogin={installationQuery.data.installation?.githubAccountLogin}
     />
   )
