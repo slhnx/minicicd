@@ -1,4 +1,5 @@
 import { githubService } from "@/server/services/github.service"
+import { projectService } from "@/server/services/project.service"
 import { createTRPCRouter, privateProcedure } from "@/server/trpc/init"
 import { TRPCError } from "@trpc/server"
 
@@ -57,7 +58,21 @@ export const githubRouter = createTRPCRouter({
         ctx.session.user.id
       )
 
-      return { repositories }
+      const registrationMap = await projectService.getRegistrationMap(
+        repositories.map((repository) => repository.id),
+      )
+
+      return {
+        repositories: repositories.map((repository) => {
+          const registration = registrationMap.get(repository.id)
+
+          return {
+            ...repository,
+            isRegistered: Boolean(registration),
+            projectId: registration?.projectId ?? null,
+          }
+        }),
+      }
     } catch (error) {
       console.error(error)
       throw new TRPCError({

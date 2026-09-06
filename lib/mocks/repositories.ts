@@ -6,6 +6,8 @@ export const mockRepositories: Repository[] = [
   {
     id: "1",
     name: "my-web-app",
+    fullName: "shaancodes/my-web-app",
+    cloneUrl: "https://github.com/shaancodes/my-web-app.git",
     description: "Frontend application with Next.js and TypeScript.",
     visibility: "public",
     url: "github.com/shaancodes/my-web-app",
@@ -17,6 +19,8 @@ export const mockRepositories: Repository[] = [
   {
     id: "2",
     name: "api-server",
+    fullName: "shaancodes/api-server",
+    cloneUrl: "https://github.com/shaancodes/api-server.git",
     description: "REST API backend with PostgreSQL and tRPC.",
     visibility: "private",
     url: "github.com/shaancodes/api-server",
@@ -28,6 +32,8 @@ export const mockRepositories: Repository[] = [
   {
     id: "3",
     name: "infra-config",
+    fullName: "shaancodes/infra-config",
+    cloneUrl: "https://github.com/shaancodes/infra-config.git",
     description: "Infrastructure and deployment configuration.",
     visibility: "private",
     url: "github.com/shaancodes/infra-config",
@@ -39,6 +45,8 @@ export const mockRepositories: Repository[] = [
   {
     id: "4",
     name: "docs-site",
+    fullName: "shaancodes/docs-site",
+    cloneUrl: "https://github.com/shaancodes/docs-site.git",
     description: "Product documentation built with MDX.",
     visibility: "public",
     url: "github.com/shaancodes/docs-site",

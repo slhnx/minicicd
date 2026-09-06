@@ -8,7 +8,7 @@ import { Suspense } from "react"
 
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { AddProjectDialog } from "@/components/dashboard/projects/add-project-dialog"
-import { ProjectsEmptyState } from "@/components/dashboard/projects/projects-empty-state"
+import { ProjectsSection } from "@/components/dashboard/projects/projects-section"
 import { UserAvatar, UserSummary } from "@/components/dashboard/user-display"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -58,7 +58,7 @@ function ProjectsBody({
         </Alert>
       ) : null}
 
-      <ProjectsEmptyState />
+      <ProjectsSection />
 
       <AddProjectDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </>

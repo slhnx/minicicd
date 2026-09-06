@@ -1,7 +1,8 @@
 "use client"
 
-import { Globe, Lock } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Check, Globe, Lock } from "lucide-react"
 
 import { GitHubConnectButton } from "@/components/dashboard/github/github-connect-button"
 import { GitHubIcon } from "@/components/dashboard/github/github-icon"
@@ -22,12 +23,15 @@ import { useTRPC } from "@/lib/trpc/client"
 
 function RepositoryPickerRow({
   repository,
+  isConnecting,
   onConnect,
 }: {
   repository: Repository
-  onConnect: () => void
+  isConnecting: boolean
+  onConnect: (repository: Repository) => void
 }) {
   const VisibilityIcon = repository.visibility === "private" ? Lock : Globe
+  const isRegistered = repository.isRegistered === true
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border p-3">
@@ -46,13 +50,31 @@ function RepositoryPickerRow({
             </Badge>
           </div>
           <p className="truncate font-mono text-xs text-muted-foreground">
-            {repository.url}
+            {repository.fullName || repository.url}
           </p>
         </div>
       </div>
-      <Button size="sm" variant="outline" onClick={onConnect}>
-        Connect
-      </Button>
+      {isRegistered ? (
+        <Button
+          size="sm"
+          variant="secondary"
+          className="min-w-24"
+          onClick={() => onConnect(repository)}
+        >
+          <Check className="size-3.5" />
+          Connected
+        </Button>
+      ) : (
+        <Button
+          size="sm"
+          variant="outline"
+          className="min-w-24"
+          isLoading={isConnecting}
+          onClick={() => onConnect(repository)}
+        >
+          Connect
+        </Button>
+      )}
     </div>
   )
 }
@@ -103,6 +125,8 @@ export function AddProjectDialog({
   onOpenChange: (open: boolean) => void
 }) {
   const trpc = useTRPC()
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const installationQuery = useQuery({
     ...trpc.github.getInstallation.queryOptions(undefined),
@@ -116,8 +140,31 @@ export function AddProjectDialog({
     enabled: open && isConnected,
   })
 
-  function handleRepositoryConnect() {
-    onOpenChange(false)
+  const createProjectMutation = useMutation(
+    trpc.project.create.mutationOptions({
+      onSuccess: async (data) => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.github.listRepositories.queryKey(),
+        })
+        await queryClient.invalidateQueries({
+          queryKey: trpc.project.list.queryKey(),
+        })
+        onOpenChange(false)
+        router.push(`/projects/${data.project.id}`)
+      },
+    }),
+  )
+
+  function handleRepositoryConnect(repository: Repository) {
+    if (repository.isRegistered && repository.projectId) {
+      onOpenChange(false)
+      router.push(`/projects/${repository.projectId}`)
+      return
+    }
+
+    createProjectMutation.mutate({
+      githubRepoId: repository.id,
+    })
   }
 
   return (
@@ -131,6 +178,15 @@ export function AddProjectDialog({
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
+          {createProjectMutation.isError ? (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>
+                {createProjectMutation.error.message ||
+                  "Failed to register project. Please try again."}
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
           {installationQuery.isPending ? (
             <ScrollArea className="h-[min(20rem,calc(85vh-10rem))]">
               <RepositoryPickerSkeleton />
@@ -184,6 +240,11 @@ export function AddProjectDialog({
                       <RepositoryPickerRow
                         key={repository.id}
                         repository={repository}
+                        isConnecting={
+                          createProjectMutation.isPending &&
+                          createProjectMutation.variables?.githubRepoId ===
+                            repository.id
+                        }
                         onConnect={handleRepositoryConnect}
                       />
                     ))}

@@ -1,5 +1,6 @@
 import { createTRPCRouter, publicProcedure } from "@/server/trpc/init"
 import { githubRouter } from "./github.router"
+import { projectRouter } from "./project.router"
 
 export const appRouter = createTRPCRouter({
   hello: publicProcedure.query(() => {
@@ -8,7 +9,7 @@ export const appRouter = createTRPCRouter({
     }
   }),
   github: githubRouter,
-  
+  project: projectRouter,
 })
 
 export type AppRouter = typeof appRouter
