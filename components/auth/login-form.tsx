@@ -20,6 +20,7 @@ import {
 import { FieldGroup, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { signIn } from "@/lib/auth/auth-client"
+import { AUTH_CALLBACK_URL } from "@/lib/auth/constants"
 import { getAuthErrorMessage } from "@/lib/auth/errors"
 import { loginSchema, type LoginFormValues } from "@/lib/auth/schemas"
 
@@ -42,7 +43,7 @@ export function LoginForm() {
       const result = await signIn.email({
         email: values.email,
         password: values.password,
-        callbackURL: "/",
+        callbackURL: AUTH_CALLBACK_URL,
       })
 
       if (result.error) {
@@ -50,7 +51,7 @@ export function LoginForm() {
         return
       }
 
-      router.push("/")
+      router.push(AUTH_CALLBACK_URL)
       router.refresh()
     } catch (err) {
       setError(getAuthErrorMessage(err))
