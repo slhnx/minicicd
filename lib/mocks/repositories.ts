@@ -1,20 +1,8 @@
-export type BuildStatus = "passed" | "failed" | "running" | "queued"
+import type { Repository } from "@/lib/types/repository"
 
-export type RepositoryVisibility = "public" | "private"
+export type { BuildStatus, Repository, RepositoryVisibility } from "@/lib/types/repository"
 
-export type MockRepository = {
-  id: string
-  name: string
-  description: string
-  visibility: RepositoryVisibility
-  url: string
-  defaultBranch: string
-  lastBuildStatus: BuildStatus
-  lastBuildAt: string
-  owner: string
-}
-
-export const mockRepositories: MockRepository[] = [
+export const mockRepositories: Repository[] = [
   {
     id: "1",
     name: "my-web-app",

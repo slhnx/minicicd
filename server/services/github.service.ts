@@ -52,6 +52,40 @@ export class GithubService {
     return githubApp.getInstallationOctokit(installationId)
   }
 
+  async getUserInstallation(userId: string) {
+    return db.githubInstallation.findFirst({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+    })
+  }
+
+  async listRepositories(userId: string) {
+    const installation = await this.getUserInstallation(userId)
+
+    if (!installation) {
+      return []
+    }
+
+    const installationId = Number(installation.installationId)
+    const octokit = await this.getInstallationOctokit(installationId)
+
+    const { data } = await octokit.rest.apps.listReposAccessibleToInstallation({
+      per_page: 100,
+    })
+
+    return data.repositories.map((repo) => ({
+      id: String(repo.id),
+      name: repo.name,
+      description: repo.description ?? "No description provided.",
+      visibility: repo.private ? ("private" as const) : ("public" as const),
+      url: repo.full_name
+        ? `github.com/${repo.full_name}`
+        : (repo.html_url ?? ""),
+      defaultBranch: repo.default_branch ?? "main",
+      owner: repo.full_name?.split("/")[0] ?? installation.githubAccountLogin,
+    }))
+  }
+
   async saveInstallation(userId: string, installation_id: number) {
     const githubApp = getGithubApp()
     const octokit = await githubApp.getInstallationOctokit(installation_id)

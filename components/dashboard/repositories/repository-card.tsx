@@ -1,7 +1,7 @@
 import { GitBranch, Lock, Globe } from "lucide-react"
 
 import { BuildStatusBadge } from "@/components/dashboard/build-status-badge"
-import type { MockRepository } from "@/lib/mocks/repositories"
+import type { Repository } from "@/lib/types/repository"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -16,7 +16,7 @@ export function RepositoryCard({
   repository,
   className,
 }: {
-  repository: MockRepository
+  repository: Repository
   className?: string
 }) {
   const VisibilityIcon =
@@ -48,7 +48,9 @@ export function RepositoryCard({
               </CardDescription>
             </div>
           </div>
-          <BuildStatusBadge status={repository.lastBuildStatus} />
+          {repository.lastBuildStatus ? (
+            <BuildStatusBadge status={repository.lastBuildStatus} />
+          ) : null}
         </div>
       </CardHeader>
       <CardContent className="space-y-3 pt-4">
@@ -62,10 +64,12 @@ export function RepositoryCard({
               {repository.defaultBranch}
             </span>
           </span>
-          <span>
-            Last build:{" "}
-            <span className="text-foreground">{repository.lastBuildAt}</span>
-          </span>
+          {repository.lastBuildAt ? (
+            <span>
+              Last build:{" "}
+              <span className="text-foreground">{repository.lastBuildAt}</span>
+            </span>
+          ) : null}
         </div>
       </CardContent>
     </Card>

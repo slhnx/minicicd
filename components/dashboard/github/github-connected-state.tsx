@@ -1,31 +1,25 @@
-import type { MockRepository } from "@/lib/mocks/repositories"
+import type { Repository } from "@/lib/types/repository"
 
 import { RepositoryList } from "@/components/dashboard/repositories/repository-list"
-import { Button } from "@/components/ui/button"
 
 export function GitHubConnectedState({
   repositories,
   isLoading = false,
-  onDisconnect,
+  accountLogin,
 }: {
-  repositories: MockRepository[]
+  repositories: Repository[]
   isLoading?: boolean
-  onDisconnect?: () => void
+  accountLogin?: string
 }) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-normal text-foreground">Repositories</h2>
-          <p className="text-sm text-muted-foreground">
-            Your connected GitHub repositories
-          </p>
-        </div>
-        {onDisconnect && (
-          <Button variant="outline" size="sm" onClick={onDisconnect}>
-            Disconnect (preview)
-          </Button>
-        )}
+      <div>
+        <h2 className="text-lg font-normal text-foreground">Repositories</h2>
+        <p className="text-sm text-muted-foreground">
+          {accountLogin
+            ? `Repositories accessible to ${accountLogin}`
+            : "Your connected GitHub repositories"}
+        </p>
       </div>
 
       <RepositoryList

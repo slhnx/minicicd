@@ -6,7 +6,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-import type { BuildStatus } from "@/lib/mocks/repositories"
+import type { BuildStatus } from "@/lib/types/repository"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
