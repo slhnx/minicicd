@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { signIn } from "@/lib/auth/auth-client"
+import { AUTH_CALLBACK_URL } from "@/lib/auth/constants"
 import { getAuthErrorMessage } from "@/lib/auth/errors"
 
 function GitHubIcon() {
@@ -25,7 +26,7 @@ export function GitHubButton() {
     try {
       await signIn.social({
         provider: "github",
-        callbackURL: "/",
+        callbackURL: AUTH_CALLBACK_URL,
       })
     } catch (err) {
       setError(getAuthErrorMessage(err))

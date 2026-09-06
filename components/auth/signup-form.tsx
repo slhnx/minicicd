@@ -21,6 +21,7 @@ import {
 import { FieldGroup, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { signUp } from "@/lib/auth/auth-client"
+import { AUTH_CALLBACK_URL } from "@/lib/auth/constants"
 import { getAuthErrorMessage } from "@/lib/auth/errors"
 import { signupSchema, type SignupFormValues } from "@/lib/auth/schemas"
 
@@ -46,7 +47,7 @@ export function SignupForm() {
         name: values.name?.trim() || (values.email.split("@")[0] ?? "User"),
         email: values.email,
         password: values.password,
-        callbackURL: "/",
+        callbackURL: AUTH_CALLBACK_URL,
       })
 
       if (result.error) {
@@ -54,7 +55,7 @@ export function SignupForm() {
         return
       }
 
-      router.push("/")
+      router.push(AUTH_CALLBACK_URL)
       router.refresh()
     } catch (err) {
       setError(getAuthErrorMessage(err))
