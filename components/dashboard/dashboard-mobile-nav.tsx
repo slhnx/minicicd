@@ -2,6 +2,7 @@
 
 import { Menu } from "lucide-react"
 
+import { Logo } from "@/components/brand/logo"
 import { SidebarNav } from "@/components/dashboard/sidebar-nav"
 import { SidebarUser } from "@/components/dashboard/sidebar-user"
 import { useDashboard } from "@/components/dashboard/dashboard-provider"
@@ -11,7 +12,6 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
 
@@ -34,7 +34,7 @@ export function DashboardMobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-72 p-0">
         <SheetHeader className="border-b border-border px-4 py-4 text-left">
-          <SheetTitle className="text-sm font-medium">MiniCI/CD</SheetTitle>
+          <Logo href="/dashboard" wordmarkClassName="text-sm" />
         </SheetHeader>
         <div className="flex flex-1 flex-col py-4">
           <SidebarNav onNavigate={() => setMobileOpen(false)} />

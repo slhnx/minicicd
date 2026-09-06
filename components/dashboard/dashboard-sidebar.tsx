@@ -1,7 +1,6 @@
 "use client"
 
-import Link from "next/link"
-
+import { Logo } from "@/components/brand/logo"
 import { SidebarCollapseButton } from "@/components/dashboard/sidebar-collapse-button"
 import { SidebarNav } from "@/components/dashboard/sidebar-nav"
 import { SidebarUser } from "@/components/dashboard/sidebar-user"
@@ -26,15 +25,12 @@ export function DashboardSidebar({ className }: { className?: string }) {
           collapsed ? "justify-center" : "justify-between gap-2"
         )}
       >
-        <Link
+        <Logo
           href="/dashboard"
-          className={cn(
-            "font-medium tracking-tight text-foreground transition-colors hover:text-foreground/80",
-            collapsed ? "text-xs" : "text-sm"
-          )}
-        >
-          {collapsed ? "MC" : "MiniCI/CD"}
-        </Link>
+          showWordmark={!collapsed}
+          wordmarkClassName={collapsed ? undefined : "text-sm"}
+          iconClassName={collapsed ? "size-7" : "size-8"}
+        />
         {!collapsed && <SidebarCollapseButton />}
       </div>
 
